@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "question": "What is an Array?",
+    "answer": "An array is a linear data structure that stores elements in contiguous memory locations.",
+    "difficulty": "Easy"
+  },
+  {
+    "id": 2,
+    "question": "Explain Linked List.",
+    "answer": "A linked list is a linear data structure where elements are connected using pointers.",
+    "difficulty": "Medium"
+  },
+  {
+    "id": 3,
+    "question": "What is Stack?",
+    "answer": "Stack follows Last In First Out (LIFO) principle.",
+    "difficulty": "Easy"
+  },
+  {
+    "id": 4,
+    "question": "Explain Queue.",
+    "answer": "Queue follows First In First Out (FIFO) principle.",
+    "difficulty": "Easy"
+  },
+  {
+    "id": 5,
+    "question": "What is Binary Search?",
+    "answer": "Binary Search is an efficient searching algorithm used on sorted arrays.",
+    "difficulty": "Medium"
+  }
+]
