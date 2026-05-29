@@ -807,7 +807,12 @@ function App() {
       setShowQuizResults(true);
       const now = new Date().toISOString();
       setFeedbackData(prev => ({ ...prev, coreConcepts: { score: trueScore, maxScore: aiQuizQuestions.length, sessionCount: (prev.coreConcepts?.sessionCount || 0) + 1, lastUpdated: now } }));
-      setAnalytics(prev => ({ ...prev, practiceSessions: (prev.practiceSessions || 0) + 1, recentActivity: [{ type: "quiz_completed", label: "Completed MCQ Quiz", score: trueScore, timestamp: now }, ...(prev.recentActivity || []).slice(0, 7)] }));
+      setAnalytics(prev => ({ 
+  ...prev, 
+  practiceSessions: (prev.practiceSessions || 0) + 1,
+  feedbackReceived: (prev.feedbackReceived || 0) + 1,
+  recentActivity: [{ type: "quiz_completed", label: "Completed MCQ Quiz", score: trueScore, timestamp: now }, ...(prev.recentActivity || []).slice(0, 7)]
+}));
       const savedToken = localStorage.getItem("token");
       logActivity(savedToken, "quiz_completed", "Completed MCQ Quiz", trueScore);
       if (savedToken && !savedToken.startsWith("demo-")) {
@@ -931,7 +936,12 @@ function App() {
       const overallScore = Math.round(newScores.reduce((a, b) => a + b.score, 0) / newScores.length);
       const now = new Date().toISOString();
       setFeedbackData(prev => ({ ...prev, technical: { score: Math.round(overallScore / 10), maxScore: 10, sessionCount: (prev.technical?.sessionCount || 0) + 1, lastUpdated: now } }));
-      setAnalytics(prev => ({ ...prev, practiceSessions: (prev.practiceSessions || 0) + 1, recentActivity: [{ type: "mock_completed", label: "Completed Mock Interview", score: Math.round(overallScore / 10), timestamp: now }, ...(prev.recentActivity || []).slice(0, 7)] }));
+      setAnalytics(prev => ({ 
+  ...prev, 
+  practiceSessions: (prev.practiceSessions || 0) + 1,
+  feedbackReceived: (prev.feedbackReceived || 0) + 1,
+  recentActivity: [{ type: "mock_completed", label: "Completed Mock Interview", score: Math.round(overallScore / 10), timestamp: now }, ...(prev.recentActivity || []).slice(0, 7)]
+}));
       const savedToken = localStorage.getItem("token");
       logActivity(savedToken, "mock_completed", "Completed Mock Interview", Math.round(overallScore / 10));
     } else {
@@ -953,7 +963,12 @@ function App() {
       logActivity(savedToken, "hr_completed", "HR Practice: " + HR_QUESTIONS[hrQuestionIndex], res.data.data.score, "HR Interview");
       const now = new Date().toISOString();
       setFeedbackData(prev => ({ ...prev, behavioral: { score: Math.round((res.data.data.score || 70) / 10), maxScore: 10, sessionCount: (prev.behavioral?.sessionCount || 0) + 1, lastUpdated: now } }));
-      setAnalytics(prev => ({ ...prev, practiceSessions: (prev.practiceSessions || 0) + 1, recentActivity: [{ type: "hr_completed", label: "HR Practice Completed", score: null, timestamp: now }, ...(prev.recentActivity || []).slice(0, 7)] }));
+      setAnalytics(prev => ({ 
+  ...prev, 
+  practiceSessions: (prev.practiceSessions || 0) + 1,
+  feedbackReceived: (prev.feedbackReceived || 0) + 1,
+  recentActivity: [{ type: "hr_completed", label: "HR Practice Completed", score: null, timestamp: now }, ...(prev.recentActivity || []).slice(0, 7)]
+}));
     } catch {
       alert("HR analysis failed. Please try again.");
     } finally {
@@ -2102,14 +2117,9 @@ Output: ${typeof ex.output === 'object' ? JSON.stringify(ex.output) : ex.output 
     <div>
       <div className="profile-banner">
         <div className="profile-avatar-lg">{userInitials}</div>
-        <div style={{ flex: 1 }}>
-          <div className="profile-role">{user?.role || "Software Developer"}</div>
-<div style={{ marginTop: 10, display: "flex", flexWrap: "wrap", gap: 6 }}>
-  {(user?.skills || ["React.js", "Node.js", "JavaScript"]).map(s => (
-    <span className="skill-pill" key={s}>{s}</span>
-  ))}
+<div style={{ flex: 1 }}>
+  <div className="profile-name">{userName}</div>
 </div>
-        </div>
         <button
           onClick={() => {
             localStorage.removeItem("token"); localStorage.removeItem("demoUser");

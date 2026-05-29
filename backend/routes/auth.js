@@ -23,20 +23,16 @@ router.post('/signup', async (req, res) => {
 
     // Save New Profile Structure to Atlas Cloud
     // In your signup route, when creating the user:
-const user = new User({
+const newUser = new User({
   name,
   email,
   password: hashedPassword,
   role:   req.body.role   || "Software Developer",
   skills: req.body.skills || ["JavaScript"],
 });
-
-    await user.save();
-
-    // Sign Session JSON Web Token Token
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
-    res.status(201).json({ token, user: { id: user._id, name: user.name, email: user.email } });
-
+await newUser.save();
+const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+res.json({ token, user: { id: newUser._id, name: newUser.name, email: newUser.email } });
   } catch (err) {
     console.error("Sign-up Error Loop Failure:", err);
     res.status(500).json({ message: "Server encountered a structural login registry error." });
