@@ -9,7 +9,7 @@ import {
 import axios from "axios";
 
 // ─── API Base ──────────────────────────────────────────────────────────────────
-const API_BASE = "http://localhost:5000";
+const API_BASE = "https://ai-interview-prep-yyl4.onrender.com";
 const AI = axios.create({ baseURL: API_BASE + "/api/ai" });
 
 // ─── Static Data ───────────────────────────────────────────────────────────────
@@ -520,7 +520,7 @@ function ProgressRing({ percent, size = 120, stroke = 9, color = "#3b82f6" }) {
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-const API = "http://localhost:5000";
+const API = "https://ai-interview-prep-yyl4.onrender.com";
 
 const fetchAnalytics = async (jwt) => {
   try {
@@ -742,7 +742,7 @@ function App() {
     </div>
   </>
 )}
-      const res = await axios.post("http://localhost:5000" + endpoint, payload);
+      const res = await axios.post("https://ai-interview-prep-yyl4.onrender.com" + endpoint, payload);
       const { token: t, user: u } = res.data;
       localStorage.setItem("token", t);
       localStorage.removeItem("demoUser");
