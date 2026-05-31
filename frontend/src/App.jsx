@@ -324,8 +324,8 @@ const STYLES = `
     border-radius: var(--radius-lg); padding: 18px 20px;
     display: flex; align-items: center; gap: 14px;
     transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
-    backdrop-filter: blur(12px);
-    box-shadow: var(--shadow-card);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    backdrop-filter: blur(10px);
   }
   .stat-card:hover {
     border-color: var(--border-hover);
@@ -1296,7 +1296,7 @@ function App() {
     <div>
       <div className="welcome-banner">
         <div className="welcome-title">Welcome back, {userName} 👋</div>
-        <div className="welcome-sub">Ready to crush your next technical interview?</div>
+        <div className="welcome-sub">Continue your interview preparation journey</div>
         <div className="welcome-actions">
           <button className="btn btn-primary" onClick={() => setActivePage("Topics")}>📚 Continue Learning</button>
           <button className="btn btn-ghost" onClick={() => { setMockFinished(false); setMockStarted(false); setMockFinalReport(null); setActivePage("MockInterview"); }}>🎯 Mock Interview</button>
