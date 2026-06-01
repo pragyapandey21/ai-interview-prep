@@ -324,8 +324,8 @@ const STYLES = `
     border-radius: var(--radius-lg); padding: 18px 20px;
     display: flex; align-items: center; gap: 14px;
     transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(12px);
+    box-shadow: var(--shadow-card);
   }
   .stat-card:hover {
     border-color: var(--border-hover);
@@ -1111,15 +1111,17 @@ function App() {
       const res = await AI.post("/mock/evaluate", { question: currentMockQ.question, answer: mockAnswer, expectedKeyPoints: currentMockQ.expectedKeyPoints || [], topic: currentMockQ.topic });
       setMockEvalResult(res.data.data);
     } catch {
-      setMockEvalResult({ score: 70, grade: "B", verdict: "Good attempt.", feedback: "You covered the main points. Keep practicing!", coveredPoints: [], missedPoints: [], improvedAnswer: "", encouragement: "Keep it up!" });
+      const fallbackScore = mockAnswer.trim() ? 40 : 0;
+      setMockEvalResult({ score: fallbackScore, grade: mockAnswer.trim() ? "D" : "F", verdict: mockAnswer.trim() ? "Could not evaluate." : "No answer provided.", feedback: mockAnswer.trim() ? "Please try again for better feedback." : "You skipped this question.", coveredPoints: [], missedPoints: [], improvedAnswer: "", encouragement: mockAnswer.trim() ? "Keep trying!" : "Attempt every question for a fair score!" });
     } finally {
       setMockEvalLoading(false);
     }
   };
 
   const handleMockNextQuestion = async () => {
-    const evalScore = mockEvalResult?.score ?? 60;
-    const newScore  = { question: currentMockQ?.question, answer: mockAnswer, score: evalScore, topic: currentMockQ?.topic || "General" };
+    const wasSkipped = !mockAnswer.trim() || !mockEvalResult;
+    const evalScore = wasSkipped ? 0 : (mockEvalResult?.score ?? 0);
+    const newScore  = { question: currentMockQ?.question, answer: mockAnswer || "(skipped)", score: evalScore, topic: currentMockQ?.topic || "General" };
     const newScores = [...mockScores, newScore];
     setMockScores(newScores);
 
@@ -1131,17 +1133,31 @@ function App() {
     setMockHistory(newHistory);
 
     if (mockQuestionNum >= mockTotalQ) {
-      // Generate final report
+      // Calculate final report from actual scores (frontend only — backend ignores scores)
       setMockReportLoading(true);
-      try {
-        const res = await AI.post("/mock/report", { scores: newScores });
-        setMockFinalReport(res.data.data);
-      } catch {
-        const avg = Math.round(newScores.reduce((a, b) => a + b.score, 0) / newScores.length);
-        setMockFinalReport({ overallScore: avg, grade: avg >= 80 ? "A" : avg >= 65 ? "B" : "C", summary: "Interview completed.", strongTopics: [], weakTopics: [], recommendations: ["Keep practicing daily."], nextSteps: "Review weak areas." });
-      } finally {
-        setMockReportLoading(false);
-      }
+      const avg = Math.round(newScores.reduce((a, b) => a + b.score, 0) / newScores.length);
+      const grade = avg >= 90 ? "A+" : avg >= 80 ? "A" : avg >= 70 ? "B" : avg >= 60 ? "C+" : avg >= 50 ? "C" : avg >= 35 ? "D" : "F";
+      const skipped = newScores.filter(s => s.answer === "(skipped)").length;
+      const attempted = newScores.length - skipped;
+      const strongTopics = [...new Set(newScores.filter(s => s.score >= 70).map(s => s.topic))];
+      const weakTopics   = [...new Set(newScores.filter(s => s.score <  50).map(s => s.topic))];
+      const summary = skipped === newScores.length
+        ? "No questions were attempted. Answer the questions to get a meaningful score."
+        : skipped > 0
+        ? `${attempted} question(s) attempted, ${skipped} skipped. Unanswered questions counted as 0.`
+        : avg >= 75
+        ? "Strong performance! You demonstrated solid understanding across topics."
+        : avg >= 50
+        ? "Decent attempt. Focus on weak areas to improve your score."
+        : "Needs improvement. Try answering all questions for better results.";
+      setMockFinalReport({
+        overallScore: avg, grade, summary,
+        strongTopics,
+        weakTopics,
+        recommendations: weakTopics.length ? weakTopics.map(t => `Revise ${t} fundamentals`) : ["Keep practicing to maintain your score."],
+        nextSteps: weakTopics.length ? `Focus on: ${weakTopics.join(", ")}` : "Great job! Try harder questions next.",
+      });
+      setMockReportLoading(false);
       setMockFinished(true);
       setMockStarted(false);
 
@@ -1205,11 +1221,11 @@ function App() {
     HR:   completedQuestions["HR Interview"]?.length      || 0,
   };
   const topicProgress = {
-    "DSA":               topicTotals.DSA  ? Math.round((completedCounts.DSA  / topicTotals.DSA)  * 100) : 0,
-    "DBMS":              topicTotals.DBMS ? Math.round((completedCounts.DBMS / topicTotals.DBMS) * 100) : 0,
-    "Operating System":  topicTotals.OS   ? Math.round((completedCounts.OS   / topicTotals.OS)   * 100) : 0,
-    "Computer Networks": topicTotals.CN   ? Math.round((completedCounts.CN   / topicTotals.CN)   * 100) : 0,
-    "HR Interview":      topicTotals.HR   ? Math.round((completedCounts.HR   / topicTotals.HR)   * 100) : 0,
+    "DSA":               topicTotals.DSA  ? Math.min(Math.round((completedCounts.DSA  / topicTotals.DSA)  * 100), 100) : 0,
+    "DBMS":              topicTotals.DBMS ? Math.min(Math.round((completedCounts.DBMS / topicTotals.DBMS) * 100), 100) : 0,
+    "Operating System":  topicTotals.OS   ? Math.min(Math.round((completedCounts.OS   / topicTotals.OS)   * 100), 100) : 0,
+    "Computer Networks": topicTotals.CN   ? Math.min(Math.round((completedCounts.CN   / topicTotals.CN)   * 100), 100) : 0,
+    "HR Interview":      topicTotals.HR   ? Math.min(Math.round((completedCounts.HR   / topicTotals.HR)   * 100), 100) : 0,
   };
   const totalCompleted  = Object.values(completedCounts).reduce((a, b) => a + b, 0);
   const totalQuestions  = Object.values(topicTotals).reduce((a, b) => a + b, 0);
@@ -1296,7 +1312,7 @@ function App() {
     <div>
       <div className="welcome-banner">
         <div className="welcome-title">Welcome back, {userName} 👋</div>
-        <div className="welcome-sub">Continue your interview preparation journey</div>
+        <div className="welcome-sub">Ready to crush your next technical interview?</div>
         <div className="welcome-actions">
           <button className="btn btn-primary" onClick={() => setActivePage("Topics")}>📚 Continue Learning</button>
           <button className="btn btn-ghost" onClick={() => { setMockFinished(false); setMockStarted(false); setMockFinalReport(null); setActivePage("MockInterview"); }}>🎯 Mock Interview</button>
