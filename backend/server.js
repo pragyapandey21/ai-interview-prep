@@ -27,4 +27,6 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ MongoDB Atlas connected!'))
   .catch(err  => console.error('❌ MongoDB failed:', err));
 
+  app.get('/health', (req, res) => res.json({ status: 'ok' }));
+
 app.listen(PORT, () => console.log(`✅ Server on port ${PORT}`));
