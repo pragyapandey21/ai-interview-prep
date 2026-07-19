@@ -167,7 +167,7 @@ npm start
 
 **Pragya Pandey**
 
-LinkedIn: https://linkedin.com/in/your-profile
+LinkedIn: https://www.linkedin.com/in/pragya-pandey-829b42345/
 
 GitHub: https://github.com/yourusername
 
