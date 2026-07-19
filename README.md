@@ -59,9 +59,12 @@ Track completed topics, quiz scores, interview progress, and learning streaks.
 ### Authentication
 - JWT (JSON Web Token)
 
-### AI Integration
-- Gemini API / OpenAI API *(replace with the one you used)*
+## 🤖 AI Integration
 
+- Groq API
+- LLM-powered interview question generation
+- AI-generated interview feedback
+- Real-time response evaluation
 ---
 
 ## ✨ Key Features
